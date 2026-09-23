@@ -75,9 +75,15 @@
                         <i class="fa-solid fa-circle-user"></i>
                         <span>{{ user.username if user and user.username else 'Officer' }}</span>
                     </div>
+                    {% if user and user.is_authenticated %}
                     <a href="{{ url_for('logout') }}" class="btn-logout-nav" title="Sign out of BISspec.IQ">
                         <i class="fa-solid fa-right-from-bracket"></i> Logout
                     </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-logout-nav" title="Sign in to BISspec.IQ" style="border-color: rgba(18, 53, 91, 0.3); color: var(--primary-blue);">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login
+                    </a>
+                    {% endif %}
                     <button class="btn-primary" onclick="toggleSection('dashboard')">
                         Launch Matcher <i class="fa-solid fa-arrow-right"></i>
                     </button>

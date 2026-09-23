@@ -7,6 +7,23 @@
 // Tracks, marks, and renders what was previously searched by the logged-in user.
 // Synchronizes with backend /api/user/history and client-side storage.
 // ==============================================================================
+// Bulletproof JSON fetch helper that shields against raw HTML parse errors (e.g. Unexpected token '<')
+async function safeFetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    const contentType = response.headers.get('content-type') || '';
+
+    if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.includes('<!DOCTYPE') || response.status === 401 || response.status === 302) {
+            throw new Error("Authentication or session state refreshed. Please try again or sign in.");
+        }
+        throw new Error(`Server returned unexpected response (${response.status})`);
+    }
+
+    const data = await response.json();
+    return { response, data };
+}
+
 let _userSearchHistoryList = [];
 
 function getUserHistoryStorageKey() {
@@ -23,15 +40,12 @@ async function initUserSearchHistory() {
 
     // 1. Try fetching from backend /api/user/history
     try {
-        const res = await fetch('/api/user/history');
-        if (res.ok) {
-            const data = await res.json();
-            if (data.success && Array.isArray(data.history) && data.history.length > 0) {
-                _userSearchHistoryList = data.history;
-                localStorage.setItem(storageKey, JSON.stringify(_userSearchHistoryList));
-                renderUserSearchHistory();
-                return;
-            }
+        const { response, data } = await safeFetchJson('/api/user/history');
+        if (response.ok && data.success && Array.isArray(data.history) && data.history.length > 0) {
+            _userSearchHistoryList = data.history;
+            localStorage.setItem(storageKey, JSON.stringify(_userSearchHistoryList));
+            renderUserSearchHistory();
+            return;
         }
     } catch (e) {
         console.warn("Could not fetch remote user history; falling back to local storage:", e);
@@ -298,8 +312,7 @@ function loadPresetQuery(val) {
 
 async function fetchDatasetCount() {
     try {
-        const response = await fetch('/standards');
-        const data = await response.json();
+        const { data } = await safeFetchJson('/standards');
         if (data.success) {
             const counterEl = document.getElementById('dataset-counter');
             if (counterEl) {
@@ -318,8 +331,7 @@ async function loadGemTenders() {
     listEl.innerHTML = '<div style="text-align:center; padding:1.5rem 1rem; color:var(--text-muted);"><div class="spinner" style="border-top-color: var(--primary-blue); display:inline-block; margin-bottom: 0.5rem;"></div><div>Loading GeM Bids...</div></div>';
 
     try {
-        const response = await fetch('/api/gem/tenders');
-        const data = await response.json();
+        const { data } = await safeFetchJson('/api/gem/tenders');
 
         if (!data.success || !data.tenders) {
             throw new Error(data.error || "Failed to load GeM tenders.");
@@ -351,13 +363,12 @@ async function matchGemTender(gemBidId) {
     showToast(`Analyzing GeM Bid "${gemBidId}" against BIS Database...`);
 
     try {
-        const response = await fetch('/api/gem/match', {
+        const { response, data } = await safeFetchJson('/api/gem/match', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ gem_bid_id: gemBidId })
         });
 
-        const data = await response.json();
         if (!response.ok || !data.success) {
             throw new Error(data.error || "GeM tender matching failed.");
         }
@@ -403,7 +414,7 @@ async function handleSearch(e) {
     btnText.innerHTML = '<div class="spinner"></div> Finding Matching Standards...';
 
     try {
-        const response = await fetch('/recommend', {
+        const { response, data } = await safeFetchJson('/recommend', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -415,8 +426,6 @@ async function handleSearch(e) {
                 language: selectedLanguage
             })
         });
-
-        const data = await response.json();
 
         if (!response.ok || !data.success) {
             throw new Error(data.error || 'Failed to fetch recommendations');
@@ -657,12 +666,11 @@ async function handlePdfUpload(e) {
     formData.append('file', fileInput.files[0]);
 
     try {
-        const response = await fetch('/upload_pdf', {
+        const { response, data } = await safeFetchJson('/upload_pdf', {
             method: 'POST',
             body: formData
         });
 
-        const data = await response.json();
         if (!response.ok || !data.success) {
             throw new Error(data.error || 'Failed to upload PDF');
         }
@@ -842,13 +850,12 @@ async function handleChatSubmit(e) {
     if (sendBtn) sendBtn.disabled = true;
 
     try {
-        const response = await fetch('/api/chat', {
+        const { response, data } = await safeFetchJson('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: msg })
         });
 
-        const data = await response.json();
         const indicator = document.getElementById('chat-typing-indicator');
         if (indicator) indicator.remove();
 
