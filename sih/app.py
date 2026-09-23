@@ -1101,7 +1101,10 @@ def upload_pdf():
             "version_year": str(version_year)
         }
 
-        append_entry_to_csv(entry, DATA_PATH)
+        try:
+            append_entry_to_csv(entry, DATA_PATH)
+        except Exception as csv_err:
+            app.logger.info(f"Serverless read-only mode, bypassing CSV file write: {csv_err}")
 
         pipeline_res = execute_bis_recommendation_pipeline(
             raw_query=snippet_english,
