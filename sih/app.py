@@ -587,9 +587,13 @@ def scrape_live_bis_portal(query: str, max_candidates: int = 25) -> List[Dict[st
             if driver:
                 target_url = "https://standards.bis.gov.in/website/know-your-standards"
                 driver.get(target_url)
+                # pyrefly: ignore [missing-import]
                 from selenium.webdriver.common.by import By
+                # pyrefly: ignore [missing-import]
                 from selenium.webdriver.common.keys import Keys
+                # pyrefly: ignore [missing-import]
                 from selenium.webdriver.support.ui import WebDriverWait
+                # pyrefly: ignore [missing-import]
                 from selenium.webdriver.support import expected_conditions as EC
 
                 wait = WebDriverWait(driver, 8)
