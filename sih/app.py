@@ -31,7 +31,12 @@ from bhasini_chat import process_chat_message
 # ==============================================================================
 # FLASK & SECURITY CONFIGURATION
 # ==============================================================================
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'bisspec-iq-enterprise-2026-secret-key-tricolor')
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
