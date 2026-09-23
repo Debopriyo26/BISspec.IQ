@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BISspec.IQ | GeM Portal & BIS Standard Recommendation Engine</title>
+    <meta name="description"
+        content="Official Bureau of Indian Standards (BIS) Recommendation Engine integrated with Government e-Marketplace (GeM) Portal.">
+
+    <!-- Google Fonts: Outfit and Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/bisspec_iq_icon.png') }}">
+</head>
+
+<body>
+
+    <!-- ===================================================================
+         SECTION 1: HERO OVERVIEW & WELCOME (BISspec.IQ PORTAL)
+         =================================================================== -->
+    <div id="hero-section" class="hero-wrapper">
+
+        <!-- Background Ambient Accent Blobs -->
+        <div class="hero-bg-blobs" aria-hidden="true">
+            <div class="hero-blob-orange"></div>
+            <div class="hero-blob-yellow"></div>
+        </div>
+
+        <!-- Minimalist Official Government of India Strip -->
+        <div class="gov-top-strip">
+            <div class="top-strip-inner">
+                <div class="gov-title">
+                    <i class="fa-solid fa-landmark"></i> Government e-Marketplace (GeM) &bull; Bureau of Indian Standards (BIS)
+                </div>
+                <div class="gov-links">
+                    <a href="https://gem.gov.in" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> GeM Portal</a>
+                    <a href="https://www.services.bis.gov.in" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> BIS Services</a>
+                    <span><i class="fa-solid fa-shield-check"></i> Public Procurement Cell</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Centered Floating Pill Navigation Bar -->
+        <div class="floating-nav-wrapper">
+            <header class="floating-nav-pill">
+                <div class="brand-container" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <!-- Official BISspec.IQ Ashoka Chakra with IQ -->
+                    <img src="{{ url_for('static', filename='images/bisspec_iq_icon.png') }}" class="ashoka-chakra-white-icon" alt="BISspec.IQ Logo">
+                    <div class="brand-title">BISspec.<span class="brand-ai-text">IQ</span></div>
+                </div>
+
+                <!-- Header Actions & Quick Nav -->
+                <div class="header-actions">
+                    <nav class="header-nav-links">
+                        <a href="#hero-section" class="active">Home</a>
+                        <a href="javascript:void(0)" onclick="toggleSection('dashboard'); switchWorkspaceTab('gem'); loadGemTenders();">GeM Live Bids</a>
+                        <a href="javascript:void(0)" onclick="scrollToFeatures()">Features</a>
+                    </nav>
+                    <!-- Direct GeM Portal Access Pill -->
+                    <a href="https://gem.gov.in/login" target="_blank" rel="noopener noreferrer" class="btn-gem-portal-nav" id="btn-gem-top-login" title="GeM Portal Login">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> GeM Portal Login
+                    </a>
+                    <div class="user-pill-nav">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span>{{ user.username if user and user.username else 'Officer' }}</span>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="btn-logout-nav" title="Sign out of BISspec.IQ">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                    <button class="btn-primary" onclick="toggleSection('dashboard')">
+                        Launch Matcher <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </header>
+        </div>
+
+        <!-- Centered Immersive Hero Area -->
+        <main class="hero-content">
+            <!-- Big Beautiful Background Ashok Chakra Watermark with IQ -->
+            <div class="hero-chakra-watermark" aria-hidden="true">
+                <img src="{{ url_for('static', filename='images/bisspec_iq_logo_trans.png') }}" alt="BISspec.IQ Watermark">
+            </div>
+
+            <div class="hero-pill">
+                <i class="fa-solid fa-sparkles"></i> AI-Powered Procurement &bull; Bureau of Indian Standards
+            </div>
+
+            <h1 class="hero-title">
+                Match GeM Tenders & Specs to <span>BIS Standards</span> Instantly
+            </h1>
+
+            <p class="hero-description">
+                BISspec.IQ powers public procurement compliance by cross-referencing Government e-Marketplace (GeM)
+                tender bids with authoritative Bureau of Indian Standards (BIS) specifications using intelligent semantic NLP matching
+                and dynamic real-time web scraping.
+            </p>
+
+            <div class="hero-cta-group">
+                <button class="btn-primary" onclick="toggleSection('dashboard')" id="btn-hero-launch">
+                    <i class="fa-solid fa-bolt"></i> Launch Matcher Workspace
+                </button>
+                <button class="btn-secondary" onclick="toggleChatbot()">
+                    <i class="fa-solid fa-comments"></i> Ask BISspec.IQ Assistant
+                </button>
+                <button class="btn-secondary" onclick="toggleSection('dashboard'); switchWorkspaceTab('gem'); loadGemTenders();">
+                    <i class="fa-solid fa-building-columns"></i> Browse GeM Live Bids
+                </button>
+            </div>
+
+            <!-- Interactive Sample Query Chips -->
+            <div class="sample-queries-wrapper" id="sample-queries-wrapper">
+                <div class="sample-queries-label">
+                    <i class="fa-solid fa-lightbulb"></i> Try high-priority procurement presets
+                </div>
+                <div class="chip-container">
+                    <div class="query-chip"
+                        onclick="quickSearch('Self-ballasted LED street light lamp 60W 240V high efficiency CRI 80')">
+                        <i class="fa-solid fa-lightbulb"></i> LED Street Light (60W)
+                    </div>
+                    <div class="query-chip"
+                        onclick="quickSearch('PVC insulated multicore cable 1100V copper conductor flame retardant')">
+                        <i class="fa-solid fa-plug"></i> PVC Armoured Cable 1100V
+                    </div>
+                    <div class="query-chip"
+                        onclick="quickSearch('Crystalline silicon terrestrial photovoltaic PV module thermal cycling damp heat')">
+                        <i class="fa-solid fa-solar-panel"></i> Solar PV Module Tender
+                    </div>
+                    <div class="query-chip"
+                        onclick="quickSearch('Outdoor oil immersed distribution transformer 33kV 2500kVA low total losses')">
+                        <i class="fa-solid fa-bolt"></i> 33kV Distribution Transformer
+                    </div>
+                    <!-- Regional Indian Language Chips (Multilingual NLP) -->
+                    <div class="query-chip chip-regional"
+                        onclick="quickSearch('सौर ऊर्जा स्ट्रीट लाइट 60W उच्च दक्षता और सुरक्षा आवश्यकताएं')">
+                        <i class="fa-solid fa-language"></i> हिन्दी: सौर स्ट्रीट लाइट (IS 16102)
+                    </div>
+                    <div class="query-chip chip-regional"
+                        onclick="quickSearch('પીવીસી ઇન્સ્યુલેટેડ વાયર 1100V તાંબાનો વાહક અગ્નિરોધક ગુણધર્મો')">
+                        <i class="fa-solid fa-language"></i> ગુજરાતી: પીવીસી વાયર (IS 694)
+                    </div>
+                    <div class="query-chip chip-regional"
+                        onclick="quickSearch('சூரிய ஒளிமின்னழுத்த தொகுதி வடிவமைப்பு தகுதி ஈரமான வெப்ப சோதனை')">
+                        <i class="fa-solid fa-language"></i> தமிழ்: சோலார் பேனல் (IS 14286)
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modern Platform Feature Blocks Grid -->
+        <div id="features-grid" class="hero-features">
+            <!-- Feature 1: GeM Live Bids -->
+            <a href="#section-gem-tenders" class="feature-card feature-gem" onclick="navigateToTool('section-gem-tenders', event)">
+                <div class="feature-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="feature-badge">GeM Live</div>
+                <div class="feature-title">GeM Live Bids Integration</div>
+                <div class="feature-desc">
+                    Fetch active GeM procurement bids, inspect item specifications, and generate mandatory compliance clauses automatically.
+                </div>
+                <div class="feature-card-cta">
+                    <span>Explore Live Tenders</span> <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Feature 2: AI Matching Core & Dynamic Scraping -->
+            <a href="#section-nlp-matcher" class="feature-card feature-nlp" onclick="navigateToTool('section-nlp-matcher', event)">
+                <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+                <div class="feature-badge">Dynamic Scraper</div>
+                <div class="feature-title">Intelligent Matching & Scraping</div>
+                <div class="feature-desc">
+                    Semantically correlates tender specifications with indexed standards and dynamically scrapes live tables from https://bis.gov.in.
+                </div>
+                <div class="feature-card-cta">
+                    <span>Launch Search Dashboard</span> <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <!-- Feature 3: Conversational AI Assistant -->
+            <div class="feature-card feature-pdf" style="cursor: pointer;" onclick="toggleChatbot()">
+                <div class="feature-icon"><i class="fa-solid fa-comments"></i></div>
+                <div class="feature-badge">AI Assistant</div>
+                <div class="feature-title">Conversational Assistant</div>
+                <div class="feature-desc">
+                    Query standards conversationally in English or Indian regional languages without manual form navigation.
+                </div>
+                <div class="feature-card-cta">
+                    <span>Open AI Assistant</span> <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <!-- Feature 4: BIS Compliance Audit & Recommendations -->
+            <a href="#section-bis-results" class="feature-card feature-bis" onclick="navigateToTool('section-bis-results', event)">
+                <div class="feature-icon"><i class="fa-solid fa-award"></i></div>
+                <div class="feature-badge"><i class="fa-solid fa-certificate" style="font-size:0.68rem; margin-right:0.25rem;"></i> Official Verification</div>
+                <div class="feature-title">
+                    <i class="fa-solid fa-medal" style="color: var(--match-olive); margin-right: 0.35rem; font-size: 1.1rem;"></i> BIS Recommendation & Compliance
+                </div>
+                <div class="feature-desc">
+                    Eliminates manual cross-referencing for procurement officers, ensuring precise compliance with Indian Standards.
+                </div>
+                <div class="feature-card-cta">
+                    <span>View Matched Standards</span> <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Clean Footer -->
+        <footer class="hero-footer">
+            BISspec.IQ &bull; Government e-Marketplace (GeM) & Bureau of Indian Standards (BIS) Integration Platform
+        </footer>
+    </div>
+
+
+    <!-- ===================================================================
+         SECTION 2: MAIN APPLICATION WORKSPACE (INTERACTIVE WORKSPACE)
+         =================================================================== -->
+    <div id="dashboard-section" class="dashboard-wrapper">
+
+        <!-- Glassmorphic Dashboard Top Navigation -->
+        <nav class="dash-nav">
+            <div class="dash-nav-inner">
+                <div class="dash-nav-brand" onclick="toggleSection('hero')">
+                    <!-- Official BISspec.IQ Ashoka Chakra with IQ -->
+                    <img src="{{ url_for('static', filename='images/bisspec_iq_icon.png') }}" class="ashoka-chakra-white-icon" alt="BISspec.IQ" style="width: 36px; height: 36px;">
+                    <div class="brand-title">
+                        BISspec.<span class="brand-ai-text">IQ</span>
+                    </div>
+                </div>
+
+                <div class="dash-nav-links">
+                    <span class="gem-badge-nav">
+                        <i class="fa-solid fa-circle-check"></i> GeM Connected
+                    </span>
+                    <button class="nav-btn" onclick="toggleChatbot()" title="Open Conversational Chatbot">
+                        <i class="fa-solid fa-comments"></i> AI Assistant
+                    </button>
+                    <a href="https://gem.gov.in/login" target="_blank" rel="noopener noreferrer" class="btn-gem-portal-nav" id="btn-gem-dash-login" title="GeM Portal Login">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> GeM Portal Login
+                    </a>
+                    <div class="user-pill-nav">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span>{{ user.username if user and user.username else 'Officer' }}</span>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="btn-logout-nav" title="Sign out of BISspec.IQ">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                    <button class="nav-btn" onclick="toggleSection('hero')">
+                        <i class="fa-solid fa-house"></i> Home Overview
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Two-Column Workspace Container (Responsive Stacking for Mobile/Tablet) -->
+        <div class="dashboard-container">
+
+            <!-- ==============================================================
+                 LEFT COLUMN: INTERACTIVE WORKSPACE INPUT ZONE
+                 ============================================================== -->
+            <div class="left-panel">
+
+                <!-- Modern Workspace Tabs Switcher -->
+                <div class="workspace-tabs" role="tablist">
+                    <button type="button" class="workspace-tab-btn active" id="tab-btn-nlp" onclick="switchWorkspaceTab('nlp')">
+                        <i class="fa-solid fa-magnifying-glass"></i> Tender Spec
+                    </button>
+                    <button type="button" class="workspace-tab-btn tab-pdf" id="tab-btn-pdf" onclick="switchWorkspaceTab('pdf')">
+                        <i class="fa-solid fa-file-pdf"></i> Upload PDF
+                    </button>
+                    <button type="button" class="workspace-tab-btn tab-gem" id="tab-btn-gem" onclick="switchWorkspaceTab('gem')">
+                        <i class="fa-solid fa-building-columns"></i> GeM Live Bids
+                    </button>
+                </div>
+
+                <!-- 1. Tender Specification Search Form Pane -->
+                <div class="workspace-tab-pane" id="pane-nlp">
+                    <div class="panel-card panel-search-card" id="section-nlp-matcher">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-magnifying-glass"></i> Tender Specification Matcher
+                            </div>
+                            <button
+                                style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;"
+                                onclick="clearSearch()">
+                                <i class="fa-solid fa-rotate-left"></i> Clear
+                            </button>
+                        </div>
+
+                        <form id="recommend-form" onsubmit="handleSearch(event)">
+                            <!-- Language Selection Dropdown -->
+                            <div class="form-group">
+                                <label class="form-label" for="language-select">
+                                    <i class="fa-solid fa-language" style="color: var(--primary-orange);"></i> Select Language
+                                </label>
+                                <select id="language-select" class="select-input language-dropdown-select" onchange="handleLanguageChange(this.value)">
+                                    <option value="ENGLISH" selected>ENGLISH</option>
+                                    <option value="HINDI">HINDI</option>
+                                    <option value="GUJARATI">GUJARATI</option>
+                                    <option value="BENGALI">BENGALI</option>
+                                    <option value="MARATHI">MARATHI</option>
+                                    <option value="TAMIL">TAMIL</option>
+                                    <option value="TELUGU">TELUGU</option>
+                                    <option value="PUNJABI">PUNJABI</option>
+                                </select>
+                            </div>
+
+                            <!-- Procurement Query Input Textarea -->
+                            <div class="form-group">
+                                <label class="form-label" for="query-input">Procurement / Technical Requirement</label>
+                                <textarea id="query-input" class="spec-textarea"
+                                    placeholder="Paste tender requirements or product specifications in English or regional Indic scripts (हिंदी, ગુજરાતી, தமிழ், etc.)..."></textarea>
+                            </div>
+
+                            <!-- Registered User Search History Feature -->
+                            <div class="form-group user-history-group" id="user-history-group" data-username="{{ user.username if user and user.username else 'Officer' }}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <label class="form-label" for="user-history-select" style="margin-bottom: 0;">
+                                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary-orange);"></i> Previous Search History
+                                    </label>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <span id="user-history-count" class="history-badge">0 Searches</span>
+                                        <button type="button" class="btn-clear-history" onclick="clearUserSearchHistory()" title="Clear your search history">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <select id="user-history-select" class="select-input" onchange="handleHistorySelect(this.value)">
+                                    <option value="">-- Recent Search History (Empty) --</option>
+                                </select>
+                                <div class="history-chips-container" id="history-chips-container" style="display: none;"></div>
+                            </div>
+
+                            <!-- Match Threshold Slider -->
+                            <div class="form-group">
+                                <div class="slider-header">
+                                    <label class="form-label" for="threshold-slider" style="margin:0;">Min Match Threshold</label>
+                                    <span id="threshold-val" class="slider-val">1.0%</span>
+                                </div>
+                                <input type="range" id="threshold-slider" class="custom-range" min="0" max="50" step="1"
+                                    value="1" oninput="updateThresholdLabel(this.value)">
+                            </div>
+
+                            <!-- Top N selector -->
+                            <div class="form-group">
+                                <label class="form-label" for="top-n-select">Max Results</label>
+                                <select id="top-n-select" class="select-input">
+                                    <option value="3" selected>Top 3 Matches (Recommended)</option>
+                                    <option value="5">Top 5 Matches</option>
+                                    <option value="10">Top 10 Matches</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn-search" id="btn-search-submit">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span id="btn-search-text">Find Matching BIS Standards</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 2. "Upload Tender Document" Drag-and-Drop Pane -->
+                <div class="workspace-tab-pane pane-hidden" id="pane-pdf">
+                    <div class="panel-card panel-pdf-card" id="section-pdf-upload">
+                        <div class="panel-header">
+                            <div class="panel-title" style="color: #7D481C;">
+                                <i class="fa-solid fa-file-pdf" style="color: #7D481C;"></i> Upload Tender Document
+                            </div>
+                        </div>
+
+                        <form id="pdf-upload-form" onsubmit="handlePdfUpload(event)">
+                            <div class="pdf-upload-box" onclick="document.getElementById('pdf-file-input').click()">
+                                <div class="pdf-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                <div class="pdf-file-label" id="pdf-file-label">
+                                    Drag & drop your PDF here, or click to browse
+                                </div>
+                                <div class="pdf-upload-subtext" id="pdf-upload-subtext">
+                                    Supports bilingual & regional tender specifications (.pdf)
+                                </div>
+                                <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;"
+                                    onchange="updatePdfFileName(this)">
+                            </div>
+
+                            <!-- Extracted text preview container (safely bounded inside textbox) -->
+                            <div id="pdf-extracted-container" class="pdf-extracted-container" style="display: none;">
+                                <div class="pdf-extracted-header">
+                                    <span><i class="fa-solid fa-file-lines"></i> Parsed Tender Specification:</span>
+                                    <button type="button" class="btn-copy-extracted" onclick="copyExtractedPdfText()"><i class="fa-regular fa-copy"></i> Copy</button>
+                                </div>
+                                <div id="pdf-extracted-text" class="pdf-extracted-text"></div>
+                            </div>
+
+                            <button type="submit" class="btn-primary"
+                                style="width: 100%; justify-content: center; background: #7D481C;"
+                                id="btn-pdf-upload">
+                                <i class="fa-solid fa-upload"></i> Process & Match PDF
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 3. GeM Active Tenders Pane -->
+                <div class="workspace-tab-pane pane-hidden" id="pane-gem">
+                    <div class="panel-card panel-gem-card" id="section-gem-tenders">
+                        <div class="panel-header">
+                            <div class="panel-title" style="color: var(--primary-orange);">
+                                <i class="fa-solid fa-building-columns"></i> GeM Portal Active Tenders
+                            </div>
+                            <button
+                                style="background: transparent; border: none; color: var(--primary-orange); font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;"
+                                onclick="loadGemTenders()">
+                                <i class="fa-solid fa-arrows-rotate"></i> Load Live
+                            </button>
+                        </div>
+
+                        <div id="gem-tenders-list"
+                            style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.85rem;">
+                            <div
+                                style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1.5rem 1rem;">
+                                Click "Load Live" to fetch active Government e-Marketplace (GeM) Bids.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==============================================================
+                 RIGHT COLUMN: THE RESULTS FEED ZONE
+                 ============================================================== -->
+            <div class="right-panel" id="section-bis-results">
+
+                <!-- Results Header Summary Bar -->
+                <div class="results-header-bar">
+                    <div>
+                        <div class="results-summary-title" id="results-title">Matched Standards</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;" id="results-subtitle">
+                            Enter procurement specifications on the left or select a GeM Tender to match BIS standards.
+                        </div>
+                    </div>
+                    <div class="results-meta" id="results-meta">
+                        <!-- Appended dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- Dynamically Injected NLP Result Cards Container -->
+                <div id="results-container" class="result-cards-list">
+                    <!-- Default Empty State -->
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+                        <div class="empty-title">Ready for Tender & GeM Analysis</div>
+                        <div class="empty-desc">
+                            BISspec.IQ automatically recommends official Bureau of Indian Standards matching your tender requirements or GeM Bid specifications, with live BIS portal integration.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================================
+         SECTION 3: BHASINI CONVERSATIONAL CHATBOT ASSISTANT
+         =================================================================== -->
+    <!-- Floating Chatbot Action Trigger Button -->
+    <button id="btn-chatbot-toggle" class="chatbot-floating-btn" onclick="toggleChatbot()" title="Ask BISspec.IQ AI Assistant">
+        <img src="{{ url_for('static', filename='images/bisspec_iq_icon.png') }}" alt="BISspec.IQ AI">
+        <span class="chatbot-btn-text">Ask BISspec.IQ</span>
+        <span class="chat-status-dot"></span>
+    </button>
+
+    <!-- Conversational Chatbot Window Drawer -->
+    <div id="chatbot-window" class="chatbot-window" role="dialog" aria-label="BISspec.IQ AI Assistant">
+        <div class="chatbot-header">
+            <div class="chatbot-header-info">
+                <img src="{{ url_for('static', filename='images/bisspec_iq_icon.png') }}" class="chatbot-header-logo" alt="BISspec.IQ AI">
+                <div>
+                    <div class="chatbot-header-title">BISspec.IQ Assistant</div>
+                    <div class="chatbot-header-subtitle">
+                        <span class="chat-status-dot" style="width:7px; height:7px;"></span> Multilingual &bull; Live Standards
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-header-actions">
+                <button onclick="toggleChatbot()" title="Close Assistant"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <div class="chatbot-body" id="chatbot-messages">
+            <!-- Initial Greeting Bubble -->
+            <div class="chat-bubble chat-bubble-bot">
+                <strong>Namaste Officer!</strong> I am your <strong>BISspec.IQ</strong> conversational assistant.
+                <div style="margin-top:0.4rem; color:var(--text-secondary); font-size:0.84rem;">
+                    You can ask me to find Indian Standards, generate GeM procurement clauses, or query specifications in English, हिन्दी, ગુજરાતી, and other regional languages.
+                </div>
+                <div class="chat-suggestions">
+                    <button class="chat-suggestion-chip" onclick="sendQuickPrompt('Find standards for LED street light 60W')">💡 LED Street Light 60W</button>
+                    <button class="chat-suggestion-chip" onclick="sendQuickPrompt('PVC multicore insulated cables 1100V')">🔌 PVC Cables 1100V</button>
+                    <button class="chat-suggestion-chip" onclick="sendQuickPrompt('सोलर पीवी मॉड्यूल परीक्षण मानक')">🇮🇳 सोलर मॉड्यूल (हिन्दी)</button>
+                    <button class="chat-suggestion-chip" onclick="sendQuickPrompt('GeM clause for 33kV distribution transformer')">📜 GeM Clause for Transformer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <form class="chatbot-input-bar" id="chatbot-form" onsubmit="handleChatSubmit(event)">
+            <input type="text" id="chatbot-input" class="chat-input" placeholder="Type a procurement query or product name..." autocomplete="off">
+            <button type="submit" class="btn-chat-send" id="btn-chat-send" title="Send Query">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i> <span id="toast-message">Notification</span>
+    </div>
+
+    <!-- Main JS Application Logic -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Interactive Workspace Tabs Switcher Integration -->
+    <script>
+        function switchWorkspaceTab(tabName) {
+            const tabs = ['nlp', 'pdf', 'gem'];
+            tabs.forEach(function(t) {
+                const btn = document.getElementById('tab-btn-' + t);
+                const pane = document.getElementById('pane-' + t);
+                if (t === tabName) {
+                    if (btn) btn.classList.add('active');
+                    if (pane) pane.classList.remove('pane-hidden');
+                } else {
+                    if (btn) btn.classList.remove('active');
+                    if (pane) pane.classList.add('pane-hidden');
+                }
+            });
+        }
+
+        // Intercept navigateToTool calls to auto-switch tabs
+        (function() {
+            const originalNavigate = window.navigateToTool;
+            if (typeof originalNavigate === 'function') {
+                window.navigateToTool = function(sectionId, event) {
+                    if (sectionId === 'section-nlp-matcher') {
+                        switchWorkspaceTab('nlp');
+                    } else if (sectionId === 'section-pdf-upload') {
+                        switchWorkspaceTab('pdf');
+                    } else if (sectionId === 'section-gem-tenders') {
+                        switchWorkspaceTab('gem');
+                    }
+                    originalNavigate(sectionId, event);
+                };
+            }
+        })();
+    </script>
+</body>
+
+</html>
