@@ -1,5 +1,6 @@
 import os
 import sys
+from urllib.parse import parse_qs, urlencode
 
 # Ensure sih folder is added to sys.path so that internal module imports work seamlessly
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -11,52 +12,38 @@ if SIH_DIR not in sys.path:
 
 # Import the configured Flask application
 # pyrefly: ignore [missing-import]
-from app import app, index, login
+from app import app
 
 # ==============================================================================
 # VERCEL SERVERLESS PATH FIXER MIDDLEWARE
-# Solves Vercel internal rewrite PATH_INFO destination rewriting.
-# Restores the original matched path from Vercel's edge headers so that
-# Flask routes like '/', '/login', '/recommend', and '/static/...' resolve properly.
+# Solves Vercel internal rewrite routing.
+# Maps Vercel rewrite parameter (?path=$1) into Flask's PATH_INFO
+# so that all routes ('/', '/login', '/recommend', '/static/...') resolve cleanly.
 # ==============================================================================
 class VercelPathFixMiddleware:
     def __init__(self, wsgi_app):
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
-        # Retrieve original path from Vercel edge rewrite headers
-        orig_path = (
-            environ.get('HTTP_X_MATCHED_PATH') or
-            environ.get('HTTP_X_VERCEL_MATCHED_PATH') or
-            environ.get('HTTP_X_FORWARDED_URI') or
-            environ.get('HTTP_X_ORIGINAL_URL') or
-            environ.get('HTTP_X_NOW_ROUTE')
-        )
+        query_string = environ.get('QUERY_STRING', '')
+        params = parse_qs(query_string, keep_blank_values=True)
 
-        current_path = environ.get('PATH_INFO', '')
+        if 'path' in params:
+            val = params['path'][0].strip() if params['path'] else ''
+            rewritten = ('/' + val.lstrip('/')) if val else '/'
+            environ['PATH_INFO'] = rewritten
 
-        if orig_path:
-            clean = orig_path.split('?')[0]
-            # If the header itself was set to /api/index, strip that prefix
-            if clean.startswith('/api/index.py'):
-                clean = clean[len('/api/index.py'):] or '/'
-            elif clean.startswith('/api/index'):
-                clean = clean[len('/api/index'):] or '/'
-            environ['PATH_INFO'] = clean
-        elif current_path.startswith('/api/index.py'):
-            environ['PATH_INFO'] = current_path[len('/api/index.py'):] or '/'
-        elif current_path.startswith('/api/index'):
-            environ['PATH_INFO'] = current_path[len('/api/index'):] or '/'
+            # Remove 'path' query param so Flask application query params remain pure
+            remaining_params = {k: v for k, v in params.items() if k != 'path'}
+            environ['QUERY_STRING'] = urlencode(remaining_params, doseq=True)
+        else:
+            path = environ.get('PATH_INFO', '')
+            if path in ('/api/index.py', '/api/index', '/api'):
+                environ['PATH_INFO'] = '/'
 
         return self.wsgi_app(environ, start_response)
 
 app.wsgi_app = VercelPathFixMiddleware(app.wsgi_app)
-
-# Explicit fallback routes for direct /api/index requests
-@app.route('/api/index', methods=['GET', 'POST'])
-@app.route('/api/index.py', methods=['GET', 'POST'])
-def vercel_entrypoint_fallback():
-    return login()
 
 # Export app for Vercel Serverless Function runtime
 if __name__ == '__main__':
