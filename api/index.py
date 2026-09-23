@@ -10,6 +10,7 @@ if SIH_DIR not in sys.path:
     sys.path.insert(0, SIH_DIR)
 
 # Import the configured Flask application
+# pyrefly: ignore [missing-import]
 from app import app
 
 # Export app for Vercel Serverless Function runtime
