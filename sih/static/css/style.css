@@ -2703,3 +2703,435 @@ a {
 .history-chip:hover i {
     color: var(--primary-orange);
 }
+
+/* ==============================================================================
+   13. DESKTOP-FIRST RESPONSIVE FIXES (TABLET & MOBILE OVERRIDES)
+   Enforces fluid stacking, mobile navigation wrapping, input constraints,
+   typography scaling, and strict background overflow containment.
+   ============================================================================== */
+
+/* --- TABLET DEVICES (<= 1024px) --- */
+@media (max-width: 1024px) {
+    /* 1. Fluid Workspace Grid Override */
+    .dashboard-container {
+        grid-template-columns: 1fr !important;
+        padding: 0 1.25rem !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .left-panel,
+    .right-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-features {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.25rem !important;
+        padding: 0 1.25rem !important;
+    }
+
+    .hero-title {
+        font-size: 2.5rem !important;
+    }
+}
+
+/* --- MOBILE & SMALL TABLET DEVICES (<= 768px) --- */
+@media (max-width: 768px) {
+    /* 5. Background Overflows & Root Viewport Containment */
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+        position: relative;
+    }
+
+    .hero-wrapper,
+    .dashboard-wrapper,
+    .hero-content,
+    .hero-bg-blobs,
+    .portal-footer {
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-chakra-watermark {
+        width: 320px !important;
+        height: 320px !important;
+        max-width: 85vw !important;
+        max-height: 85vw !important;
+        opacity: 0.06 !important;
+        pointer-events: none !important;
+    }
+
+    .hero-bg-blobs {
+        overflow: hidden !important;
+        pointer-events: none !important;
+    }
+
+    .hero-blob-orange,
+    .hero-blob-yellow {
+        width: 220px !important;
+        height: 220px !important;
+        filter: blur(40px) !important;
+    }
+
+    /* 2. Mobile Navigation & Headers Clean Stacking & Wrapping */
+    .gov-top-strip {
+        padding: 0.4rem 0.85rem !important;
+    }
+
+    .top-strip-inner {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 0.35rem !important;
+    }
+
+    .gov-links {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .floating-nav-wrapper {
+        padding: 0.5rem 0.75rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .floating-nav-pill {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .floating-nav-pill .brand-container {
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    .floating-nav-pill .header-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.6rem !important;
+        width: 100% !important;
+    }
+
+    .header-nav-links {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.35rem !important;
+        width: 100% !important;
+    }
+
+    .header-nav-links a {
+        padding: 0.35rem 0.65rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    .floating-nav-pill .btn-primary,
+    .floating-nav-pill .btn-gem-portal-nav,
+    .floating-nav-pill .user-pill-nav,
+    .floating-nav-pill .btn-logout-nav {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        font-size: 0.82rem !important;
+    }
+
+    .dash-nav {
+        padding: 0.75rem 0.85rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .dash-nav-inner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .dash-nav-brand {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+    }
+
+    .dash-nav-links {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.45rem !important;
+        width: 100% !important;
+    }
+
+    .dash-nav-links .nav-btn,
+    .dash-nav-links .btn-gem-portal-nav,
+    .dash-nav-links .user-pill-nav,
+    .dash-nav-links .btn-logout-nav {
+        padding: 0.4rem 0.7rem !important;
+        font-size: 0.78rem !important;
+        flex-grow: 1 !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    /* 1. Fluid Workspace Grid Mobile Single-Column Stacking */
+    .dashboard-container {
+        grid-template-columns: 1fr !important;
+        padding: 0 0.85rem !important;
+        gap: 1.25rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .workspace-tabs {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        flex-wrap: wrap !important;
+        gap: 0.3rem !important;
+        padding: 0.3rem !important;
+    }
+
+    .workspace-tab-btn {
+        flex: 1 1 auto !important;
+        min-width: 90px !important;
+        padding: 0.5rem 0.65rem !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* 3. Input Elements, Textareas, and Card Constraints (Prevent Horizontal Scroll) */
+    input,
+    textarea,
+    select,
+    .form-input,
+    .form-select,
+    .search-textarea,
+    .filter-select,
+    .panel-card,
+    .result-card,
+    .pdf-upload-box,
+    .pdf-extracted-box,
+    .gem-card,
+    .feature-card,
+    .results-header-bar,
+    .input-group,
+    .form-group,
+    .search-box-wrapper,
+    .result-cards-list,
+    .sample-queries-wrapper,
+    .history-chips-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .results-header-bar {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem !important;
+        padding: 1.15rem 1rem !important;
+    }
+
+    .results-meta {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+        width: 100% !important;
+    }
+
+    .card-top-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+
+    .card-std-no {
+        font-size: 1.1rem !important;
+        word-break: break-word !important;
+    }
+
+    .card-badges {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.35rem !important;
+    }
+
+    .card-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .card-actions-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.45rem !important;
+        width: 100% !important;
+    }
+
+    .card-actions-group .btn-card-action,
+    .card-actions-group .btn-card-gem {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* 4. Typography Scaling & Padding Reductions (Mobile) */
+    .hero-title {
+        font-size: 1.95rem !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.02em !important;
+    }
+
+    .hero-description {
+        font-size: 0.92rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .hero-cta-group {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 0.65rem !important;
+    }
+
+    .hero-cta-group .btn-primary,
+    .hero-cta-group .btn-secondary {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .chip-container {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.4rem !important;
+    }
+
+    .query-chip {
+        max-width: 100% !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        font-size: 0.76rem !important;
+        padding: 0.35rem 0.65rem !important;
+    }
+
+    .panel-card,
+    .result-card {
+        padding: 1.15rem 1rem !important;
+    }
+
+    .hero-features {
+        grid-template-columns: 1fr !important;
+        padding: 0 0.85rem !important;
+        gap: 1rem !important;
+    }
+
+    .feature-card {
+        padding: 1.25rem 1rem !important;
+    }
+
+    /* Chatbot Mobile Overlay */
+    .chatbot-floating-btn {
+        bottom: 1rem !important;
+        right: 1rem !important;
+        padding: 0.6rem 1rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    .chatbot-window {
+        width: calc(100vw - 1.5rem) !important;
+        max-width: calc(100vw - 1.5rem) !important;
+        height: calc(100vh - 5.5rem) !important;
+        right: 0.75rem !important;
+        left: 0.75rem !important;
+        bottom: 4.5rem !important;
+        box-sizing: border-box !important;
+    }
+
+    .toast {
+        left: 0.75rem !important;
+        right: 0.75rem !important;
+        max-width: calc(100vw - 1.5rem) !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* --- SMALL MOBILE DEVICES (320px - 480px) --- */
+@media (max-width: 480px) {
+    /* 4. Fine-Tuned Typography & Spacing for Ultra-Compact Screens */
+    .hero-title {
+        font-size: 1.6rem !important;
+        line-height: 1.22 !important;
+    }
+
+    .hero-pill {
+        font-size: 0.74rem !important;
+        padding: 0.3rem 0.65rem !important;
+    }
+
+    .hero-description {
+        font-size: 0.86rem !important;
+    }
+
+    .hero-chakra-watermark {
+        width: 250px !important;
+        height: 250px !important;
+        max-width: 80vw !important;
+        max-height: 80vw !important;
+        opacity: 0.05 !important;
+    }
+
+    .panel-card,
+    .result-card {
+        padding: 0.95rem 0.75rem !important;
+    }
+
+    .panel-header {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .panel-title {
+        font-size: 0.92rem !important;
+    }
+
+    .card-std-no {
+        font-size: 1rem !important;
+    }
+
+    .badge-score {
+        font-size: 0.82rem !important;
+        padding: 0.3rem 0.65rem !important;
+    }
+
+    .workspace-tab-btn {
+        font-size: 0.74rem !important;
+        padding: 0.45rem 0.5rem !important;
+    }
+
+    .btn-search-submit,
+    .btn-upload-submit {
+        font-size: 0.88rem !important;
+        padding: 0.75rem 1rem !important;
+    }
+
+    .history-chip {
+        max-width: 100% !important;
+        font-size: 0.72rem !important;
+    }
+}
