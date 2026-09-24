@@ -10,6 +10,10 @@ SIH_DIR = os.path.join(ROOT_DIR, 'sih')
 if SIH_DIR not in sys.path:
     sys.path.insert(0, SIH_DIR)
 
+# Set Supabase environment defaults for Vercel Serverless runtime
+os.environ.setdefault("SUPABASE_URL", "https://jxkxhynrefnzrvugaxfk.supabase.co")
+os.environ.setdefault("SUPABASE_KEY", "sb_publishable_LgMJbULPy8cIu7lQ6fTMhQ_4jgn8yxQ")
+
 # Import the configured Flask application
 # pyrefly: ignore [missing-import]
 from app import app

@@ -1,4 +1,14 @@
 {
+  "env": {
+    "SUPABASE_URL": "https://jxkxhynrefnzrvugaxfk.supabase.co",
+    "SUPABASE_KEY": "sb_publishable_LgMJbULPy8cIu7lQ6fTMhQ_4jgn8yxQ"
+  },
+  "build": {
+    "env": {
+      "SUPABASE_URL": "https://jxkxhynrefnzrvugaxfk.supabase.co",
+      "SUPABASE_KEY": "sb_publishable_LgMJbULPy8cIu7lQ6fTMhQ_4jgn8yxQ"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
