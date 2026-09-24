@@ -1,0 +1,10 @@
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "email": "officer@bis.gov.in",
+    "username": "bis_officer",
+    "password_hash": "scrypt:32768:8:1$uTEhGfPIySTYOr6l$160de958d45d395a790f89dbd967037c89ded40d2d08a7a882d3c149dbd5625b3ab1980deb1dd0aaa24752a940d5764209f9d89f3719c4487b6779ca77752bd3",
+    "created_at": "2024-01-01T00:00:00+00:00",
+    "role": "officer"
+  }
+]

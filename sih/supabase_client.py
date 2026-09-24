@@ -62,20 +62,50 @@ class SupabaseUser(UserMixin):
         return f"<SupabaseUser {self.username} ({self.email})>"
 
 
+def _auto_load_dotenv():
+    """Lightweight loader for .env file if SUPABASE credentials are in .env."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(current_dir, "..", ".env"),
+        os.path.join(current_dir, ".env"),
+    ]
+    for env_path in candidates:
+        if os.path.exists(env_path):
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k and k not in os.environ:
+                                os.environ[k] = v
+            except Exception as e:
+                logger.debug(f"Notice reading {env_path}: {e}")
+
+_auto_load_dotenv()
+
 # ==============================================================================
-# IN-MEMORY RESILIENT FALLBACK (Used if SUPABASE_URL / KEY are not yet populated)
+# PERSISTENT LOCAL FALLBACK STORE (Used when SUPABASE_URL / KEY are not set)
 # ==============================================================================
 class LocalSupabaseFallback:
     """
-    Graceful local fallback store that ensures the application runs out-of-the-box
-    prior to environment variable population, adhering to the Supabase Auth schema.
+    Persistent local fallback store that ensures registered accounts stay intact
+    across server reboots, file changes, and browser sessions.
+    Saves user accounts to sih/data/local_users.json.
     """
     def __init__(self):
-        self.users_by_id = {}
-        self.users_by_email = {}
-        self.users_by_username = {}
-        # Seed default officer demo account
-        self._seed_default_account()
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        data_dir = os.path.join(base_dir, "data")
+        os.makedirs(data_dir, exist_ok=True)
+        self.storage_file = os.path.join(data_dir, "local_users.json")
+        
+        self.users_by_id: Dict[str, Dict[str, Any]] = {}
+        self.users_by_email: Dict[str, Dict[str, Any]] = {}
+        self.users_by_username: Dict[str, Dict[str, Any]] = {}
+        
+        self._load_users()
 
     def _seed_default_account(self):
         admin_id = "00000000-0000-0000-0000-000000000001"
@@ -85,20 +115,68 @@ class LocalSupabaseFallback:
             "email": "officer@bis.gov.in",
             "username": "bis_officer",
             "password_hash": pw_hash,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": "2024-01-01T00:00:00+00:00",
             "role": "officer"
         }
         self.users_by_id[admin_id] = officer
         self.users_by_email["officer@bis.gov.in"] = officer
-        self.users_by_username["bis_officer"] = officer
+        self.users_by_username["bis_officer".lower()] = officer
+
+    def _load_users(self):
+        """Loads users from local_users.json file, or seeds defaults if file is missing."""
+        self._seed_default_account()
+        
+        if os.path.exists(self.storage_file):
+            try:
+                with open(self.storage_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        for user_dict in data:
+                            uid = str(user_dict.get("id", ""))
+                            email = str(user_dict.get("email", "")).strip().lower()
+                            uname = str(user_dict.get("username", "")).strip()
+                            if uid:
+                                self.users_by_id[uid] = user_dict
+                            if email:
+                                self.users_by_email[email] = user_dict
+                            if uname:
+                                self.users_by_username[uname.lower()] = user_dict
+            except Exception as e:
+                logger.warning(f"Notice reading local user database ({self.storage_file}): {e}")
+        else:
+            self._save()
+
+    def _save(self):
+        """Saves current registered users to sih/data/local_users.json."""
+        try:
+            with open(self.storage_file, "w", encoding="utf-8") as f:
+                json.dump(list(self.users_by_id.values()), f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to persist user database to {self.storage_file}: {e}")
 
     def sign_up(self, email: str, password: str, username: str) -> Tuple[Optional[SupabaseUser], Optional[str]]:
         email_clean = email.strip().lower()
         uname_clean = username.strip()
 
+        # Reload in case another thread/process wrote to the file
+        if os.path.exists(self.storage_file):
+            try:
+                with open(self.storage_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        for user_dict in data:
+                            uid = str(user_dict.get("id", ""))
+                            em = str(user_dict.get("email", "")).strip().lower()
+                            un = str(user_dict.get("username", "")).strip()
+                            if uid: self.users_by_id[uid] = user_dict
+                            if em: self.users_by_email[em] = user_dict
+                            if un: self.users_by_username[un.lower()] = user_dict
+            except Exception:
+                pass
+
         if email_clean in self.users_by_email:
             return None, f"An account with email '{email_clean}' already exists."
-        if uname_clean in self.users_by_username:
+        if uname_clean.lower() in self.users_by_username:
             return None, f"The username '{uname_clean}' is already taken."
 
         user_id = str(uuid.uuid4())
@@ -112,19 +190,39 @@ class LocalSupabaseFallback:
         }
         self.users_by_id[user_id] = record
         self.users_by_email[email_clean] = record
-        self.users_by_username[uname_clean] = record
+        self.users_by_username[uname_clean.lower()] = record
+        
+        # Persist to disk immediately so it remains intact permanently
+        self._save()
 
         user = SupabaseUser(user_id=user_id, email=email_clean, username=uname_clean, metadata={"role": "officer"})
         return user, None
 
     def sign_in(self, identifier: str, password: str) -> Tuple[Optional[SupabaseUser], Optional[str]]:
-        ident = identifier.strip().lower()
+        ident = identifier.strip()
+        ident_lower = ident.lower()
         record = None
 
+        # Reload file to ensure newest registrations are present
+        if os.path.exists(self.storage_file):
+            try:
+                with open(self.storage_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        for user_dict in data:
+                            uid = str(user_dict.get("id", ""))
+                            em = str(user_dict.get("email", "")).strip().lower()
+                            un = str(user_dict.get("username", "")).strip()
+                            if uid: self.users_by_id[uid] = user_dict
+                            if em: self.users_by_email[em] = user_dict
+                            if un: self.users_by_username[un.lower()] = user_dict
+            except Exception:
+                pass
+
         if "@" in ident:
-            record = self.users_by_email.get(ident)
+            record = self.users_by_email.get(ident_lower)
         else:
-            record = self.users_by_username.get(identifier.strip())
+            record = self.users_by_username.get(ident_lower)
 
         if not record:
             return None, "Invalid username/email or password."
@@ -142,6 +240,10 @@ class LocalSupabaseFallback:
 
     def get_user(self, user_id: str) -> Optional[SupabaseUser]:
         rec = self.users_by_id.get(str(user_id))
+        if not rec and os.path.exists(self.storage_file):
+            self._load_users()
+            rec = self.users_by_id.get(str(user_id))
+
         if not rec:
             return None
         return SupabaseUser(
